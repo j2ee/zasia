@@ -5,9 +5,9 @@ import lombok.Data;
 @Data
 public class ZasiaTask {
 
-    private String url;
-    private String dir;
+    private String downloadUrl;
+    private String savePath;
     private String filename;
-    private int threadNumber;
+    private int threadCount;
 
 }

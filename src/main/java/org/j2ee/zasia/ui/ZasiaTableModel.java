@@ -9,16 +9,16 @@ public class ZasiaTableModel extends AbstractTableModel {
     private Vector<Object> columnNames = new Vector<>();
 
     public ZasiaTableModel() {
-        columnNames.add("");
-        columnNames.add("序号");
-        columnNames.add("编号");
-        columnNames.add("来信主题");
-        columnNames.add("来源");
-        columnNames.add("受理/分配部门");
-        columnNames.add("转发时间");
-        columnNames.add("状态");
-        columnNames.add("操作");
-        rowData.add(columnNames);
+        columnNames.add("filename");
+        columnNames.add("download url");
+        columnNames.add("save to path");
+//        columnNames.add("status");
+//        columnNames.add("operation");
+//        rowData.add(columnNames);
+    }
+
+    public Vector<Vector<Object>> getRowData() {
+        return this.rowData;
     }
 
     @Override

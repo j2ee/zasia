@@ -1,16 +1,26 @@
 package org.j2ee.zasia.ui;
 
+//import sun.net.www.http.HttpClient;
+
+import javax.net.ssl.HttpsURLConnection;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.http.HttpClient;
 import java.util.Vector;
 
 public class ZasiaFrame extends JFrame {
+
+    private String userProfileDir = System.getenv("USERPROFILE") + File.separator + ".zasia";
 
     // 菜单
     JMenuBar menuBar = new JMenuBar();
@@ -55,9 +65,9 @@ public class ZasiaFrame extends JFrame {
 
     // 主面板
     JPanel centerPanel = new JPanel();
-    JTextField url = new JTextField(110);
-    JTextField dir = new JTextField(110);
-//    JTextField username = new JTextField(20);
+    JTextField downloadUrl = new JTextField(100);
+    JTextField savePath = new JTextField(100);
+    //    JTextField username = new JTextField(20);
 //    JPasswordField password = new JPasswordField(20);
 //    JComboBox<String> system = new JComboBox<>(systems);
     // JTextField page = new JTextField(3);
@@ -65,7 +75,7 @@ public class ZasiaFrame extends JFrame {
 //    JTextField to = new JTextField(10);
 //    JTextField path = new JTextField(60);
 //    JButton open = new JButton("打开");
-    JButton choiceBtn = new JButton(" Choice ");
+    JButton browserBtn = new JButton("Browser ");
     JButton downloadBtn = new JButton("Download");
     JFileChooser fileChooser = new JFileChooser();
     //    JButton run = new JButton("Run");
@@ -86,8 +96,8 @@ public class ZasiaFrame extends JFrame {
 //    JTable table = new JTable(rowData, columnNames);
 
     // 详情
-    JTextArea detail = new JTextArea(5, 20);
-    JScrollPane scroll = new JScrollPane(detail);
+//    JTextArea detail = new JTextArea(5, 20);
+//    JScrollPane scroll = new JScrollPane(detail);
 
     public ZasiaFrame() {
 
@@ -119,10 +129,10 @@ public class ZasiaFrame extends JFrame {
         Box vbox = Box.createVerticalBox();
         Box hbox = Box.createHorizontalBox();
 //        hbox.add(new JLabel("URL"));
-//        hbox.add(url);
-        // url.setText("http://www.tjhexi.gov.cn/Pages/index.aspx");
-        // url.setText("http://mail.tjhexi.gov.cn/");
-//        url.setText("http://zw.tjhexi.gov.cn/zmhd/login/check.asp");
+//        hbox.add(downloadUrl);
+        // downloadUrl.setText("http://www.tjhexi.gov.cn/Pages/index.aspx");
+        // downloadUrl.setText("http://mail.tjhexi.gov.cn/");
+//        downloadUrl.setText("http://zw.tjhexi.gov.cn/zmhd/login/check.asp");
 //        vbox.add(hbox);
 //        hbox = Box.createHorizontalBox();
 //        hbox.add(new JLabel("账号"));
@@ -146,14 +156,16 @@ public class ZasiaFrame extends JFrame {
 //        hbox.add(to);
 //        vbox.add(hbox);
         hbox = Box.createHorizontalBox();
-        hbox.add(new JLabel(" URL "));
-        hbox.add(url);
-        hbox.add(downloadBtn);
+        hbox.add(new JLabel(" Save to Path "));
+        savePath.setText(System.getenv("TMP") + File.separator + "zasia");
+        hbox.add(savePath);
+        hbox.add(browserBtn);
         vbox.add(hbox);
         hbox = Box.createHorizontalBox();
-        hbox.add(new JLabel(" DIR "));
-        hbox.add(dir);
-        hbox.add(choiceBtn);
+        hbox.add(new JLabel(" Download URL "));
+        downloadUrl.setText("");
+        hbox.add(downloadUrl);
+        hbox.add(downloadBtn);
         vbox.add(hbox);
 //        hbox.add(path);
 //        hbox.add(open);
@@ -175,15 +187,11 @@ public class ZasiaFrame extends JFrame {
 //        hbox.add(Box.createHorizontalStrut(400));
 //        vbox.add(hbox);
         hbox = Box.createHorizontalBox();
-        taskTable.getColumnModel().getColumn(0).setPreferredWidth(10);
-        taskTable.getColumnModel().getColumn(1).setPreferredWidth(40);
-        taskTable.getColumnModel().getColumn(2).setPreferredWidth(40);
-        taskTable.getColumnModel().getColumn(3).setPreferredWidth(240);
-        taskTable.getColumnModel().getColumn(4).setPreferredWidth(50);
-        taskTable.getColumnModel().getColumn(5).setPreferredWidth(130);
-        taskTable.getColumnModel().getColumn(6).setPreferredWidth(110);
-        taskTable.getColumnModel().getColumn(7).setPreferredWidth(40);
-        taskTable.getColumnModel().getColumn(8).setPreferredWidth(40);
+        taskTable.getColumnModel().getColumn(0).setPreferredWidth(20);
+        taskTable.getColumnModel().getColumn(1).setPreferredWidth(200);
+        taskTable.getColumnModel().getColumn(2).setPreferredWidth(200);
+//        taskTable.getColumnModel().getColumn(3).setPreferredWidth(40);
+//        taskTable.getColumnModel().getColumn(4).setPreferredWidth(50);
 //        ((DefaultTableCellRenderer)taskTable.getTableHeader().getDefaultRenderer()).setHorizontalAlignment(JLabel.CENTER);
 //        table.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(new JCheckBox()));
 //        table.setEnabled(false);
@@ -199,11 +207,11 @@ public class ZasiaFrame extends JFrame {
         add(centerPanel);
 
         // 详情
-        detail.setLineWrap(true);
-        detail.setWrapStyleWord(true);
-        scroll.setAutoscrolls(true);
-        scroll.setBounds(0, 0, 199, 199);
-        add(scroll, BorderLayout.SOUTH);
+//        detail.setLineWrap(true);
+//        detail.setWrapStyleWord(true);
+//        scroll.setAutoscrolls(true);
+//        scroll.setBounds(0, 0, 199, 199);
+//        add(scroll, BorderLayout.SOUTH);
 //        add(new JScrollPane(table), BorderLayout.SOUTH);
 
         // 监听
@@ -211,12 +219,100 @@ public class ZasiaFrame extends JFrame {
 
         aboutMenuItem.addActionListener(e -> JOptionPane.showMessageDialog(null, "Zasia version: 1.0", "About", JOptionPane.PLAIN_MESSAGE));
 
-        choiceBtn.addActionListener(e -> {
+        browserBtn.addActionListener(e -> {
             int result = fileChooser.showOpenDialog(this);
             if (result == JFileChooser.APPROVE_OPTION) {
-                dir.setText(fileChooser.getSelectedFile().getAbsolutePath());
+                savePath.setText(fileChooser.getSelectedFile().getAbsolutePath());
             }
             // fileChooser.setVisible(true);
+        });
+
+        downloadBtn.addActionListener(e -> {
+            String pathss = savePath.getText().trim();
+            if (pathss.isEmpty()) {
+                savePath.setText(System.getenv("TMP") + File.separator + "zasia");
+            }
+            String urls = downloadUrl.getText().trim();
+            downloadUrl.setText(urls);
+            if (urls.isEmpty()) {
+                return;
+            }
+            String filename = System.currentTimeMillis() + "";
+            try {
+                URL url = new URL(downloadUrl.getText());
+                String protocol = url.getProtocol();
+                if (protocol == null) {
+                    return;
+                }
+                String path = url.getPath();
+                String[] paths = path.split("/");
+                String name = paths[paths.length - 1];
+                if (name.length() > 0) {
+                    filename = name;
+                }
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setConnectTimeout(5000);
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9*");
+                conn.setRequestProperty("Accept-Language", "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7");
+//                conn.setRequestProperty("Charset", "UTF-8");
+                conn.setRequestProperty("Connection", "keep-alive");
+                int fileSize = conn.getContentLength();
+                System.out.println("file size: " + fileSize);
+                File sp = new File(savePath.getText());
+                if (!sp.exists()) {
+                    sp.mkdirs();
+                }
+                RandomAccessFile file = new RandomAccessFile(savePath.getText() + File.separator + filename, "rw");
+                file.setLength(fileSize);
+                file.close();
+            } catch (MalformedURLException ex) {
+                ex.printStackTrace();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            try {
+                URL url = new URL(downloadUrl.getText());
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setConnectTimeout(5000);
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9*");
+                conn.setRequestProperty("Accept-Language", "en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7");
+//                conn.setRequestProperty("Charset", "UTF-8");
+                conn.setRequestProperty("Connection", "keep-alive");
+                int fileSize = conn.getContentLength();
+                System.out.println("file size: " + fileSize);
+//                String filename = System.currentTimeMillis() + "";
+                File sp = new File(savePath.getText());
+                if (!sp.exists()) {
+                    sp.mkdirs();
+                }
+                RandomAccessFile file = new RandomAccessFile(savePath.getText() + File.separator + filename, "rw");
+                InputStream inputStream = conn.getInputStream();
+                byte[] buffer = new byte[1024];
+                int len = 0;
+                while ((len = inputStream.read(buffer)) != -1) {
+                    file.write(buffer, 0, len);
+                }
+                inputStream.close();
+                file.close();
+            } catch (MalformedURLException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(null, "URL Error!", "Error", JOptionPane.PLAIN_MESSAGE);
+                return;
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+//            HttpClient httpClient = HttpClient.newBuilder().build();
+            ZasiaTableModel taskTableModel = (ZasiaTableModel) taskTable.getModel();
+            Vector<Object> row = new Vector<>();
+            row.add(filename);
+            row.add(downloadUrl.getText());
+            row.add(savePath.getText());
+//            row.add("status");
+//            row.add("start");
+            taskTableModel.getRowData().add(row);
+            SwingUtilities.updateComponentTreeUI(taskTable);
         });
 
 //        all.addActionListener(e -> {
@@ -283,7 +379,7 @@ public class ZasiaFrame extends JFrame {
 //
 //                    stopFlag = false;
 ////                    Website website = new Website();
-////                    website.setUrl(url.getText());
+////                    website.setUrl(downloadUrl.getText());
 ////                    website.setPath(path.getText());
 //
 //                    try {
@@ -328,9 +424,9 @@ public class ZasiaFrame extends JFrame {
 ////                            if (website.getPath() == null || "".equals(website.getPath().trim())) {
 ////                                website.setPath(".");
 ////                            }
-////                            File dir = new File(website.getPath());
-//                            if (!dir.exists()) {
-//                                dir.mkdirs();
+////                            File savePath = new File(website.getPath());
+//                            if (!savePath.exists()) {
+//                                savePath.mkdirs();
 //                            }
 ////                            os = new FileOutputStream(website.getPath() + File.separator + filename);
 //                            detail.append(filename + "\n");
@@ -410,7 +506,7 @@ public class ZasiaFrame extends JFrame {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
             SwingUtilities.updateComponentTreeUI(this);
 //            SwingUtilities.updateComponentTreeUI(table);
-            ((DefaultTableCellRenderer)taskTable.getTableHeader().getDefaultRenderer()).setHorizontalAlignment(JLabel.CENTER);
+            ((DefaultTableCellRenderer) taskTable.getTableHeader().getDefaultRenderer()).setHorizontalAlignment(JLabel.CENTER);
 //            table.getCellRenderer(row, column)
             DefaultTableCellRenderer tcr = new DefaultTableCellRenderer();//单元格渲染器
             tcr.setHorizontalAlignment(JLabel.CENTER);//居中显示
@@ -429,9 +525,9 @@ public class ZasiaFrame extends JFrame {
 
 //        setSize(1000, 600);
         setMinimumSize(new Dimension(800, 450));
-//        pack();
+        pack();
 //        setPreferredSize(new Dimension(1800, 600));
-//        setResizable(false);
+        setResizable(false);
         // setLocationByPlatform(true);
         setLocationRelativeTo(this.getOwner());
 //        setExtendedState(JFrame.MAXIMIZED_BOTH);
