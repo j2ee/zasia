@@ -2,7 +2,6 @@ package org.j2ee.zasia.ui;
 
 //import sun.net.www.http.HttpClient;
 
-import javax.net.ssl.HttpsURLConnection;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
@@ -14,21 +13,21 @@ import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
-import java.net.http.HttpClient;
+import java.util.ResourceBundle;
 import java.util.Vector;
 
 public class ZasiaFrame extends JFrame {
 
     private String userProfileDir = System.getenv("USERPROFILE") + File.separator + ".zasia";
+    static ResourceBundle keyword = ResourceBundle.getBundle("i18n/keyword");
 
     // 菜单
     JMenuBar menuBar = new JMenuBar();
-    JMenu fileMenu = new JMenu("File");
+    JMenu fileMenu = new JMenu(keyword.getString("file"));
     JMenuItem newMenuItem = new JMenuItem("New");
-    JMenuItem exitMenuItem = new JMenuItem("Exit");
-    JMenu helpMenu = new JMenu("Help");
-    JMenuItem aboutMenuItem = new JMenuItem("About");
+    JMenuItem exitMenuItem = new JMenuItem(keyword.getString("exit"));
+    JMenu helpMenu = new JMenu(keyword.getString("help"));
+    JMenuItem aboutMenuItem = new JMenuItem(keyword.getString("about"));
 
     // 工具栏
 //    JToolBar toolBar = new JToolBar();
@@ -101,7 +100,7 @@ public class ZasiaFrame extends JFrame {
 
     public ZasiaFrame() {
 
-        super("Zasia");
+        super(keyword.getString("app.name"));
 
         // 菜单
         menuBar.add(fileMenu);
@@ -217,7 +216,7 @@ public class ZasiaFrame extends JFrame {
         // 监听
         exitMenuItem.addActionListener(e -> System.exit(0));
 
-        aboutMenuItem.addActionListener(e -> JOptionPane.showMessageDialog(null, "Zasia version: 1.0", "About", JOptionPane.PLAIN_MESSAGE));
+        aboutMenuItem.addActionListener(e -> JOptionPane.showMessageDialog(null, keyword.getString("version") + ": 1.0", keyword.getString("about"), JOptionPane.PLAIN_MESSAGE));
 
         browserBtn.addActionListener(e -> {
             int result = fileChooser.showOpenDialog(this);
