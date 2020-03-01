@@ -2,6 +2,8 @@ package org.j2ee.zasia.ui;
 
 //import sun.net.www.http.HttpClient;
 
+import org.j2ee.zasia.enums.FileType;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
@@ -265,11 +267,21 @@ public class ZasiaFrame extends JFrame {
                 String originFilename = filename;
                 int sn = 1;
                 while (new File(savePath.getText() + File.separator + filename).exists()) {
-                    int lastIndexOf = originFilename.lastIndexOf(".");
-                    if (lastIndexOf != -1) {
-                        filename = originFilename.substring(0, lastIndexOf) + "("+(sn++)+")" + originFilename.substring(lastIndexOf);
+                    FileType fileType = FileType.getFileType(originFilename);
+                    if (fileType == null) {
+                        int lastIndexOf = originFilename.lastIndexOf(".");
+
+                        if (lastIndexOf != -1) {
+                            filename = originFilename.substring(0, lastIndexOf)
+                                    + "(" + (sn++) + ")"
+                                    + originFilename.substring(lastIndexOf);
+                        } else {
+                            filename = originFilename + "(" + (sn++) + "";
+                        }
                     } else {
-                        filename = originFilename + "("+(sn++)+"";
+                        filename = originFilename.substring(0, originFilename.length() - fileType.getSuffix().length())
+                                + "(" + (sn++) + ")"
+                                + originFilename.substring(originFilename.length() - fileType.getSuffix().length());
                     }
                 }
                 RandomAccessFile file = new RandomAccessFile(savePath.getText() + File.separator + filename, "rw");
