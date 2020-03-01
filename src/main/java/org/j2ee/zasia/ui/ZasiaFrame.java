@@ -262,6 +262,16 @@ public class ZasiaFrame extends JFrame {
                 if (!sp.exists()) {
                     sp.mkdirs();
                 }
+                String originFilename = filename;
+                int sn = 1;
+                while (new File(savePath.getText() + File.separator + filename).exists()) {
+                    int lastIndexOf = originFilename.lastIndexOf(".");
+                    if (lastIndexOf != -1) {
+                        filename = originFilename.substring(0, lastIndexOf) + "("+(sn++)+")" + originFilename.substring(lastIndexOf);
+                    } else {
+                        filename = originFilename + "("+(sn++)+"";
+                    }
+                }
                 RandomAccessFile file = new RandomAccessFile(savePath.getText() + File.separator + filename, "rw");
                 file.setLength(fileSize);
                 file.close();
